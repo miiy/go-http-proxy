@@ -50,12 +50,14 @@ func main() {
 
 func setupLog(logFile string) (func(), error) {
 	if logFile == "" {
+		log.SetOutput(os.Stdout)
 		return nil, nil
 	}
 	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return nil, err
 	}
+	log.SetOutput(f)
 	return func() {
 		f.Close()
 	}, nil
