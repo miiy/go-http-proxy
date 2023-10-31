@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"errors"
 	"flag"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -136,6 +139,22 @@ func dumpRequest(r *http.Request, dumpBody bool) {
 }
 
 func dumpResponse(resp *http.Response, dumpBody bool) {
+	if resp.Header.Get("Content-Encoding") == "gzip" {
+		var buf bytes.Buffer
+		reader, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			log.Printf("Failed to read response: %s\n", err)
+			return
+		}
+		defer reader.Close()
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			line := scanner.Bytes()
+			buf.Write(line)
+		}
+		resp.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
+	}
+
 	responseDump, err := httputil.DumpResponse(resp, dumpBody)
 	if err != nil {
 		log.Printf("Failed to dump response: %s\n", err)
