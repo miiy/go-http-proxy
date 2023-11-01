@@ -13,6 +13,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 )
 
 const (
@@ -166,7 +167,9 @@ func dumpResponse(resp *http.Response, dumpBody bool) {
 }
 
 func modifyResponse(resp *http.Response) error {
-	if resp.Header.Get("Content-Type") == "text/event-stream" {
+	// text/event-stream or text/event-stream; charset=utf-8
+	contentType := resp.Header.Get("Content-Type")
+	if strings.Index(contentType, "text/event-stream") != -1 {
 		return nil
 	}
 
@@ -178,7 +181,7 @@ func dumpStreamResponse(ctx context.Context, rw *responseWriter, dumpBody bool) 
 	<-ctx.Done()
 
 	contentType := rw.Header().Get("Content-Type")
-	if contentType == "text/event-stream" && dumpBody {
+	if strings.Index(contentType, "text/event-stream") != -1 && dumpBody {
 		var b bytes.Buffer
 		err := rw.Header().Write(&b)
 		if err != nil {
