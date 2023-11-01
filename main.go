@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -65,6 +66,12 @@ func setupLog(logFile string) (func(), error) {
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
+	// Latency
+	start := time.Now()
+	defer func() {
+		log.Printf("Latency: %s\n", time.Since(start))
+	}()
+
 	// Dump request
 	dumpRequest(r, *dumpBody)
 
