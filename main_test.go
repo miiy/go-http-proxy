@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/miiy/go-http-proxy/client"
 	"log"
 	"net/http"
 	"strings"
@@ -24,7 +25,7 @@ func TestRequest(t *testing.T) {
 	go testRemoteServer()
 
 	// request
-	url := "http://localhost:8080/a?b=c"
+	url := "http://localhost:8081/a?b=c"
 	reqBody := strings.NewReader("{\"a\": 1}")
 	req, err := http.NewRequest(http.MethodPost, url, reqBody)
 	if err != nil {
@@ -32,13 +33,11 @@ func TestRequest(t *testing.T) {
 	}
 
 	// set header
-	req.Header.Set(HeaderProxyAuth, "test")
-	req.Header.Set(HeaderProxyTarget, "http://127.0.0.1:8081")
 	req.Header.Set("X-Request-ID", "1")
 
 	// do request
-	client := http.Client{}
-	resp, err := client.Do(req)
+	c := client.NewClient("http://127.0.0.1:8080", "test")
+	resp, err := c.Do(req)
 	if err != nil {
 		t.Error(err)
 	}
