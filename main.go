@@ -31,7 +31,6 @@ var (
 )
 
 func main() {
-	*dumpBody = true
 	flag.Parse()
 
 	// Setup log
