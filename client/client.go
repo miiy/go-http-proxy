@@ -32,6 +32,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	origin := fmt.Sprintf("%s://%s", req.URL.Scheme, req.URL.Host)
 
 	req.Host = pUrl.Host
+	req.URL.Scheme = pUrl.Scheme
 	req.URL.Host = pUrl.Host
 	req.Header.Add("X-Proxy-Target", origin)
 	req.Header.Add("X-Proxy-Auth", t.proxyAuth)
